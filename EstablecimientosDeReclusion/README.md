@@ -1,20 +1,34 @@
-# Establecimientos de Reclusión del Orden Nacional
+# Establecimientos de Reclusión y Policía en Colombia
 
-Descarga y limpieza del [Directorio de Establecimientos de Reclusión de Orden Nacional](https://www.datos.gov.co/Justicia-y-Derecho/Directorio-de-Establecimientos-de-Reclusi-n-de-Ord/24zf-4cfu/about_data) (INPEC), publicado en datos.gov.co.
+Descarga y limpieza de la ubicación de cárceles y sitios de policía en Colombia, pensada para cruzar por distancia con otras bases (por ejemplo, transacciones).
 
-## Contenido
+## Fuentes
 
-- `EstablecimientosDeReclusion.ipynb`: consulta la API Socrata (`https://www.datos.gov.co/resource/24zf-4cfu.json`), renombra columnas y convierte las coordenadas de grados-minutos-segundos a grados decimales.
-- `establecimientos_reclusion.csv`: resultado limpio (126 establecimientos).
+- **INPEC:** [Directorio de Establecimientos de Reclusión de Orden Nacional](https://www.datos.gov.co/Justicia-y-Derecho/Directorio-de-Establecimientos-de-Reclusi-n-de-Ord/24zf-4cfu/about_data), datos.gov.co, vía la API Socrata (`https://www.datos.gov.co/resource/24zf-4cfu.json`).
+- **OpenStreetMap:** cárceles (`amenity=prison`) y sitios de policía (`amenity=police`) vía la [API Overpass](https://overpass-api.de/api/interpreter). Cubre cárceles municipales, departamentales y otras que no dependen del INPEC. La cobertura es desigual fuera de las ciudades.
 
-## Columnas del CSV
+## Archivos
 
-`regional`, `codigo_divipola`, `departamento`, `ciudad`, `direccion`, `latitud`, `longitud` (decimales), `cod_establecimiento`, `nombre_establecimiento`, `clasificacion_art_11_ley_65`.
+| Archivo | Contenido |
+|---|---|
+| `EstablecimientosDeReclusion.ipynb` | Notebook que descarga, limpia y une las fuentes. |
+| `establecimientos_reclusion.csv` | 126 establecimientos del INPEC, coordenadas en grados decimales. |
+| `carceles_inpec_otras.csv` | INPEC + otras cárceles de OpenStreetMap (sin policía). |
+| `lugares_reclusion_policia.csv` | INPEC + otras cárceles + sitios de policía. |
+
+Las tablas unificadas tienen las columnas `tipo` (`INPEC`, `Otra cárcel`, `Policía`), `fuente`, `id_fuente`, `nombre`, `departamento`, `ciudad`, `latitud`, `longitud`.
+
+Una cárcel de OpenStreetMap se clasifica como INPEC si está a menos de 1 km de un establecimiento oficial (`RADIO_INPEC_KM`); las demás quedan como `Otra cárcel` y conviene revisarlas manualmente, porque algunas coordenadas del INPEC parecen desplazadas.
 
 ## Uso
 
 ```bash
-pip install pandas requests
+pip install pandas numpy requests
 ```
 
 Abrir el notebook y ejecutar todas las celdas.
+
+## Licencias
+
+- Datos del INPEC: publicados como datos abiertos en datos.gov.co.
+- Datos de OpenStreetMap: © colaboradores de OpenStreetMap, bajo licencia [ODbL](https://www.openstreetmap.org/copyright). `carceles_inpec_otras.csv` y `lugares_reclusion_policia.csv` contienen datos derivados de OpenStreetMap y se distribuyen bajo la misma licencia.
