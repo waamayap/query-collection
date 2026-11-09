@@ -18,15 +18,19 @@ Descarga y limpieza de la ubicación de cárceles y sitios de policía en Colomb
 
 Las tablas unificadas tienen las columnas `tipo` (`INPEC`, `Otra cárcel`, `Policía`), `fuente`, `id_fuente`, `nombre`, `departamento`, `ciudad`, `latitud`, `longitud`.
 
+El notebook incluye además `distancia_a_carceles()`, que recibe una tabla de transacciones con latitud y longitud y agrega la distancia (km) a la cárcel del INPEC y a la otra cárcel más cercanas, con marcas `cerca_inpec` y `cerca_otra_carcel` según un radio. Trae un ejemplo con transacciones **sintéticas** y una celda comentada para cargar la base real desde Excel (`.xlsx`).
+
 Una cárcel de OpenStreetMap se clasifica como INPEC si está a menos de 1 km de un establecimiento oficial (`RADIO_INPEC_KM`); las demás quedan como `Otra cárcel` y conviene revisarlas manualmente, porque algunas coordenadas del INPEC parecen desplazadas.
 
 ## Uso
 
 ```bash
-pip install pandas numpy requests
+pip install pandas numpy requests openpyxl
 ```
 
 Abrir el notebook y ejecutar todas las celdas.
+
+Los datos reales de transacciones no se suben a este repositorio: el `.gitignore` excluye archivos Excel y `transacciones*`. Antes de hacer commit del notebook, borrar los resultados (*Clear All Outputs*) si se corrió con datos reales.
 
 ## Licencias
 

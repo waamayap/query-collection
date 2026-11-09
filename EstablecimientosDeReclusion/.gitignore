@@ -1,0 +1,5 @@
+# Datos reales de transacciones: no se suben al repositorio (es público)
+*.xlsx
+*.xls
+transacciones*
+trx*
