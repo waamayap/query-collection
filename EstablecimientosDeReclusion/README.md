@@ -20,7 +20,7 @@ Las tablas unificadas tienen las columnas `tipo` (`INPEC`, `Otra cárcel`, `Poli
 
 El notebook incluye además `distancia_a_carceles()`, que recibe una tabla de transacciones con latitud y longitud y agrega la distancia (km) a la cárcel del INPEC y a la otra cárcel más cercanas, con marcas `cerca_inpec` y `cerca_otra_carcel` según un radio. Trae un ejemplo con transacciones **sintéticas** y una celda comentada para cargar la base real desde Excel (`.xlsx`).
 
-`exportar_kml()` genera un archivo `.kml` con las cárceles, un radio alrededor de cada una y las transacciones coloreadas según su cercanía (rojo: cerca de INPEC; naranja: cerca de otra cárcel; gris: lejos), para abrirlo en [Google My Maps](https://www.google.com/maps/d/), [Google Earth](https://earth.google.com/web/) o Google Earth Pro. Con datos reales, Google Earth Pro (escritorio) evita subir las transacciones a la nube.
+`exportar_kml()` genera un archivo `.kml` con las cárceles, un radio alrededor de cada una y las transacciones coloreadas según su cercanía (rojo: cerca de INPEC; naranja: cerca de otra cárcel; gris: lejos), para abrirlo en [Google My Maps](https://www.google.com/maps/d/), [Google Earth](https://earth.google.com/web/) o [Google Earth Pro](https://www.google.com/earth/about/versions/) (programa de escritorio gratuito). Con datos reales, Google Earth Pro (escritorio) evita subir las transacciones a la nube.
 
 Una cárcel de OpenStreetMap se clasifica como INPEC si está a menos de 1 km de un establecimiento oficial (`RADIO_INPEC_KM`); las demás quedan como `Otra cárcel` y conviene revisarlas manualmente, porque algunas coordenadas del INPEC parecen desplazadas.
 
