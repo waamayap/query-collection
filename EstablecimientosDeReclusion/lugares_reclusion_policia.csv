@@ -403,7 +403,7 @@ Policía,OpenStreetMap,node/3816216814,Policía Municipal,,,3.2499789,-76.229479
 Policía,OpenStreetMap,node/3826142331,,,Girardot,4.2929021,-74.820676
 Policía,OpenStreetMap,node/3861661239,Estación de Policía La Granja,,,8.7374001,-75.8911476
 Policía,OpenStreetMap,node/3865627251,Policía Nacional,,Samaniego,1.3388685,-77.5928146
-Policía,OpenStreetMap,node/3878615141,Cai Granada,,,8.7424932,-75.8846724
+Policía,OpenStreetMap,node/3878615141,Cai Granada,,,8.7424267,-75.884276
 Policía,OpenStreetMap,node/3879219100,CAI Centenario,,,0.8286331,-77.6246186
 Policía,OpenStreetMap,node/3901979756,CAI La Soledad,,,4.6306058,-74.0748838
 Policía,OpenStreetMap,node/3915709456,Policía Nacional,,,2.3893774,-75.8922232
@@ -445,7 +445,6 @@ Policía,OpenStreetMap,node/4185883924,,,,6.3771772,-75.140652
 Policía,OpenStreetMap,node/4205810189,Estaciòn de Policia,,,2.2559796,-75.7701749
 Policía,OpenStreetMap,node/4205828990,Estación de Policía,,,2.4858806,-75.7314513
 Policía,OpenStreetMap,node/4205838989,Estación de Policia,,,1.7226828,-76.1302859
-Policía,OpenStreetMap,node/4211019865,Estación De Policia,,,1.9918807,-76.0465566
 Policía,OpenStreetMap,node/4211504357,Estacion Policia Nal.,,,3.151963,-75.0534264
 Policía,OpenStreetMap,node/4222657795,,,,1.2637917,-70.2287351
 Policía,OpenStreetMap,node/4223059015,Policía,,,8.3019504,-72.8901521
@@ -1696,7 +1695,6 @@ Policía,OpenStreetMap,way/1268005918,Estación de Policía de Gachetá,,,4.8169
 Policía,OpenStreetMap,way/1280702263,Subestació de Policía,,,4.4972898,-72.7505604
 Policía,OpenStreetMap,way/1281962920,Cai Villavenilda,,,5.3363729,-72.3817696
 Policía,OpenStreetMap,way/1282714443,Estación de Policía,,,3.2666186,-76.5369848
-Policía,OpenStreetMap,way/1285006031,UNDMO,,,4.8188009,-75.6913849
 Policía,OpenStreetMap,way/1285340602,,,,1.9672303,-77.1171805
 Policía,OpenStreetMap,way/1286454838,Comando Policia Caquetá,,Florencia,1.6114542,-75.6113482
 Policía,OpenStreetMap,way/1286669825,Estación de Policía de Sabaneta,,,6.1486113,-75.6249188
@@ -1870,6 +1868,8 @@ Policía,OpenStreetMap,way/1557253049,Estacion de Policia Bosconia Km 0,,,9.9708
 Policía,OpenStreetMap,way/1568284214,Estación de Policía,,San Diego,10.3298651,-73.1844099
 Policía,OpenStreetMap,way/1571182526,Estación de Policía de Sutatausa,,,5.2462986,-73.8533595
 Policía,OpenStreetMap,way/1575104515,Estación de Policía de Guachetá,,,5.3826483,-73.6862549
+Policía,OpenStreetMap,way/1577252582,Estación de Policía de Saladoblanco,,,1.9918809,-76.046463
+Policía,OpenStreetMap,way/1577272159,Estación de Policía de Caparrapí,,,5.3451984,-74.4922074
 Policía,OpenStreetMap,relation/3295262,subestación de policía de Berrugas,,,9.6983118,-75.6138505
 Policía,OpenStreetMap,relation/4281477,Policia Metropolitana,,,11.2408335,-74.2148914
 Policía,OpenStreetMap,relation/5279192,Estación de Policía Dosquebradas,,,4.8382362,-75.666185
