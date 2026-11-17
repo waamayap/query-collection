@@ -1,0 +1,451 @@
+<title>Bre-B Sentinel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: propuesta de una columna ancha; el monitor de riesgo es el bloque central, el resto es texto sobrio alrededor */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --sunk:#e8ecf2; --line:#d5dbe4;
+  --fg:#16202e; --muted:#5a6678; --accent:#1f4fb8; --accent-soft:#dfe7f8;
+  --low:#3f8f6b; --mid:#c99a1b; --high:#d0662a; --crit:#b42335;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141c; --surface:#161d28; --sunk:#1d2633; --line:#2b3646;
+  --fg:#e6ebf2; --muted:#98a4b6; --accent:#7ea3ff; --accent-soft:#1e2c4a;
+  --low:#5cbf93; --mid:#e2b844; --high:#f08a4f; --crit:#f0596b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --surface:#161d28; --sunk:#1d2633; --line:#2b3646;
+  --fg:#e6ebf2; --muted:#98a4b6; --accent:#7ea3ff; --accent-soft:#1e2c4a;
+  --low:#5cbf93; --mid:#e2b844; --high:#f08a4f; --crit:#f0596b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h2{font-size:1.55rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font:500 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* top bar */
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:.85rem}
+.brand{font-family:var(--display);font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:10px}
+.mark{width:22px;height:22px;border-radius:6px;background:var(--accent);display:grid;place-items:center}
+.mark svg{display:block}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;font:500 .75rem var(--mono);color:var(--muted);background:var(--surface)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--low);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:end}
+.hero h1{font-size:clamp(2rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.02em;margin-block:14px 18px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lede{font-size:1.08rem;max-width:58ch;color:var(--muted)}
+.window{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.window .t{font:500 .75rem var(--mono);color:var(--muted);display:flex;justify-content:space-between}
+.track{position:relative;height:34px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.seg{position:absolute;top:0;bottom:0;display:flex;align-items:center;padding-left:8px;font:500 .7rem var(--mono);white-space:nowrap}
+.seg.a{left:0;width:6%;background:var(--accent-soft);color:var(--accent)}
+.seg.b{left:6%;width:4%;background:var(--accent);color:#fff;padding-left:4px}
+.seg.c{left:10%;right:0;color:var(--muted)}
+.window small{color:var(--muted);font-size:.82rem;line-height:1.5}
+
+/* sections */
+section{display:flex;flex-direction:column;gap:22px}
+.head{display:flex;flex-direction:column;gap:8px;max-width:70ch}
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fact{border-top:2px solid var(--fg);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.fact b{font-family:var(--display);font-size:1.05rem}
+.fact p{color:var(--muted);font-size:.93rem}
+.threats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.threat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.threat p{font-size:.9rem;color:var(--muted)}
+.tag{align-self:flex-start;font:500 .68rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+
+/* monitor */
+.monitor{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:22px}
+.mhead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.85rem}
+button{font:500 .82rem var(--body);color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.kpi{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .l{font:500 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font:600 1.45rem var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .s{font-size:.78rem;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+.panel{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel .ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel .ph span{font:500 .7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+svg text{fill:var(--muted);font:11px var(--mono)}
+.regions{display:flex;flex-direction:column;gap:6px}
+.reg{display:grid;grid-template-columns:96px minmax(0,1fr) 64px;gap:10px;align-items:center;background:none;border:1px solid transparent;padding:4px 6px;border-radius:6px;text-align:left;width:100%}
+.reg:hover{border-color:var(--line)}
+.reg.on{border-color:var(--accent);background:var(--accent-soft)}
+.reg .n{font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg .b{height:10px;background:var(--sunk);border-radius:3px;overflow:hidden;display:flex}
+.reg .b i{display:block;height:100%}
+.reg .c{font:500 .78rem var(--mono);text-align:right;color:var(--muted)}
+.rules{display:flex;flex-direction:column;gap:10px}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
+.rule .nm{font-size:.9rem;font-weight:500}
+.rule .w{font:500 .8rem var(--mono);color:var(--accent)}
+.rule .d{grid-column:1/-1;font-size:.8rem;color:var(--muted)}
+.rule .hb{grid-column:1/-1;height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.rule .hb i{display:block;height:100%;background:var(--accent)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.86rem}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:500 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:none}
+td.r{text-align:right}
+.sev{display:inline-flex;align-items:center;gap:6px;font:600 .78rem var(--mono)}
+.sev::before{content:"";width:8px;height:8px;border-radius:2px;background:currentColor}
+.sev.alto{color:var(--high)} .sev.critico{color:var(--crit)} .sev.medio{color:var(--mid)} .sev.bajo{color:var(--low)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font:500 .7rem var(--mono);padding:1px 6px;border-radius:4px;background:var(--sunk);color:var(--fg)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* flow */
+.flow{overflow-x:auto}
+.flow ol{list-style:none;margin:0;padding:0;display:flex;gap:0;min-width:820px}
+.flow li{flex:1;position:relative;padding:14px 18px 14px 14px;background:var(--surface);border:1px solid var(--line);border-left:none;display:flex;flex-direction:column;gap:4px}
+.flow li:first-child{border-left:1px solid var(--line);border-radius:10px 0 0 10px}
+.flow li:last-child{border-radius:0 10px 10px 0;background:var(--accent-soft)}
+.flow li b{font-family:var(--display);font-size:.92rem}
+.flow li span{font-size:.78rem;color:var(--muted)}
+.flow li small{font:500 .68rem var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
+
+.decisions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+.dec{padding-block:14px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px}
+.dec b{font-family:var(--display);font-size:.92rem;font-weight:600}
+.dec p{font-size:.9rem;color:var(--muted)}
+
+.phases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.phase{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+.phase .k{font:600 .75rem var(--mono);color:var(--accent)}
+.phase.now{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.phase ul{margin:0;padding-left:18px;font-size:.86rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.phase .out{margin-top:auto;font-size:.8rem;border-top:1px dashed var(--line);padding-top:8px}
+
+.ask{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;background:var(--fg);color:var(--bg);border-radius:14px;padding:28px}
+.ask h2{color:var(--bg)}
+.ask ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.ask .eyebrow{color:var(--bg);opacity:.7}
+footer{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+
+@media (max-width:900px){
+  .hero,.grid2,.ask{grid-template-columns:minmax(0,1fr)}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis .kpi:first-child{grid-column:1/-1}
+  .phases{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .decisions{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .cols3,.phases{grid-template-columns:minmax(0,1fr)}
+  .dec{grid-template-columns:minmax(0,1fr);gap:4px}
+  .monitor{padding:16px}
+  .reg{grid-template-columns:80px minmax(0,1fr) 56px}
+}
+</style>
+
+<div class="wrap">
+
+  <header class="bar">
+    <div class="brand"><span class="mark"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h4l1.5-4L8 10l1.2-4H11" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Bre-B Sentinel</div>
+    <span class="pill"><span class="dot"></span>propuesta · simulación en línea</span>
+  </header>
+
+  <section class="hero">
+    <div>
+      <span class="eyebrow">Inteligencia antifraude por eventos · Propuesta para Cotrafa</span>
+      <h1>Cada transferencia Bre-B <em>deja una señal.</em></h1>
+      <p class="lede">Proponemos un motor de riesgo explicable que evalúa cada pago inmediato Bre-B mientras ocurre, explica por qué lo marcó y deja evidencia auditable para SARLAFT y el equipo de fraude. Esta página muestra el concepto funcionando con datos 100% sintéticos.</p>
+    </div>
+    <div class="window" aria-label="Presupuesto de tiempo dentro de una transferencia Bre-B">
+      <div class="t"><span>Ventana de una transferencia</span><span class="num">≤ 20 s</span></div>
+      <div class="track">
+        <div class="seg a">validación</div>
+        <div class="seg b">score</div>
+        <div class="seg c">liquidación y confirmación al cliente</div>
+      </div>
+      <small>El scoring debe decidir en milisegundos, dentro de la ventana de la operación. Meta propuesta: p95 &lt; 150 ms por evento, con decisión <b>aprobar · retener · escalar</b>.</small>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Contexto</span>
+      <h2>Bre-B cambia la velocidad del fraude</h2>
+      <p class="muted">Bre-B es el sistema de pagos inmediatos del Banco de la República. Es interoperable entre entidades, funciona todos los días a toda hora y usa llaves para identificar al destinatario. Lo que antes tardaba horas ahora se liquida en segundos, y el dinero robado también se mueve en segundos.</p>
+    </div>
+    <div class="cols3">
+      <div class="fact"><b>24/7, en segundos</b><p>No hay corte nocturno ni ventana de revisión manual. El control tiene que ser automático y ocurrir antes de la confirmación.</p></div>
+      <div class="fact"><b>Llaves como identidad</b><p>Celular, documento, correo, código alfanumérico o código de comercio. Una llave recién creada o cambiada es una señal de riesgo.</p></div>
+      <div class="fact"><b>Interoperable</b><p>El fondo sale de Cotrafa hacia cualquier entidad. Una cuenta mula en otra entidad recibe y redistribuye antes de que llegue un reclamo.</p></div>
+    </div>
+    <div class="threats">
+      <div class="threat"><span class="tag">Ingeniería social</span><h3>Suplantación y engaño</h3><p>El asociado es convencido de transferir a una llave del estafador: falso asesor, falso familiar, falsa oferta.</p></div>
+      <div class="threat"><span class="tag">Toma de cuenta</span><h3>Acceso desde dispositivo nuevo</h3><p>Credenciales robadas, nuevo dispositivo y una ráfaga de transferencias de alto monto en pocos minutos.</p></div>
+      <div class="threat"><span class="tag">Cuentas mula</span><h3>Recepción y dispersión</h3><p>Cuentas nuevas que reciben de muchos orígenes y vacían el saldo de inmediato hacia otras llaves.</p></div>
+      <div class="threat"><span class="tag">QR y comercio</span><h3>Códigos alterados</h3><p>QR o códigos de comercio sustituidos que desvían pagos a una llave distinta a la del comercio real.</p></div>
+    </div>
+  </section>
+
+  <section id="monitor">
+    <div class="head">
+      <span class="eyebrow">Demostración</span>
+      <h2>Monitor de riesgo</h2>
+      <p class="muted">Eventos Bre-B sintéticos de asociados en Antioquia, generados con semilla fija (la misma semilla produce los mismos datos). Haga clic en un municipio para filtrar las alertas.</p>
+    </div>
+
+    <div class="monitor">
+      <div class="mhead">
+        <div class="legend">
+          <span><i style="background:var(--low)"></i>Bajo &lt; 30</span>
+          <span><i style="background:var(--mid)"></i>Medio 30–59</span>
+          <span><i style="background:var(--high)"></i>Alto 60–79</span>
+          <span><i style="background:var(--crit)"></i>Crítico ≥ 80</span>
+        </div>
+        <div class="controls">
+          <span class="muted num" id="seedLabel">semilla 2025</span>
+          <button id="reseed" type="button">Generar otro lote</button>
+          <button id="clear" type="button" hidden>Quitar filtro ×</button>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><span class="l">Señales en revisión</span><span class="v" id="kSignals">–</span><span class="s">reglas activadas en el lote</span></div>
+        <div class="kpi"><span class="l">Transacciones</span><span class="v" id="kTx">–</span><span class="s">eventos sintéticos</span></div>
+        <div class="kpi"><span class="l">Volumen (COP)</span><span class="v" id="kVol">–</span><span class="s">monto procesado</span></div>
+        <div class="kpi"><span class="l">Alertas</span><span class="v" id="kAlerts">–</span><span class="s">alto + crítico</span></div>
+        <div class="kpi"><span class="l">Riesgo promedio</span><span class="v" id="kAvg">–</span><span class="s">sobre 100</span></div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="ph"><h3>Distribución del riesgo</h3><span>salida del modelo</span></div>
+          <svg id="hist" viewBox="0 0 480 220" role="img" aria-label="Histograma de puntajes de riesgo" style="width:100%;height:auto"></svg>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Señales por municipio</h3><span>clic para filtrar</span></div>
+          <div class="regions" id="regions"></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="ph"><h3>¿Por qué se marcó?</h3><span>reglas explicables</span></div>
+          <div class="rules" id="rules"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Flujo de alertas</h3><span id="alertScope">todas las regiones</span></div>
+          <p class="muted" style="font-size:.85rem">Las 10 transacciones con mayor puntaje. Cada alerta conserva las señales que la originaron, que es lo que el analista ve en el caso.</p>
+        </div>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Transacción</th><th>Hora</th><th>Municipio</th><th>Llave destino</th><th class="r">Monto (COP)</th><th class="r">Score</th><th>Nivel</th><th>Señales</th></tr></thead>
+          <tbody id="alerts"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Arquitectura</span>
+      <h2>Flujo por eventos, de la transferencia a la evidencia</h2>
+      <p class="muted">Cada paso es desacoplado: si el scoring falla, el evento no se pierde; queda en una cola de mensajes fallidos y se reprocesa de forma controlada.</p>
+    </div>
+    <div class="flow">
+      <ol>
+        <li><small>Origen</small><b>Evento Bre-B</b><span>Canal digital / core de Cotrafa emite el evento de transferencia</span></li>
+        <li><small>Ingesta</small><b>Cola de eventos</b><span>Service Bus o SQS, con cola de fallidos (DLQ)</span></li>
+        <li><small>Decisión</small><b>Función de scoring</b><span>Valida el contrato, calcula el score y explica</span></li>
+        <li><small>Almacén</small><b>Data lake</b><span>Particionado por hora, cifrado, con retención definida</span></li>
+        <li><small>Análisis</small><b>Consultas SQL</b><span>Synapse / Athena para cartera y tendencias</span></li>
+        <li><small>Uso</small><b>Monitor y casos</b><span>Tablero, alertas y evidencia para SARLAFT</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Decisiones de ingeniería</span>
+      <h2>Lo que hace confiable al sistema</h2>
+    </div>
+    <div class="decisions">
+      <div class="dec"><b>Reglas explicables primero</b><p>Un score ponderado que el analista y el auditor entienden. Cada alerta guarda qué reglas sumaron y cuánto. El modelo de ML entra después, como segunda opinión.</p></div>
+      <div class="dec"><b>Idempotencia</b><p>Un mismo evento procesado dos veces produce un solo resultado. Evita alertas y bloqueos duplicados cuando hay reintentos.</p></div>
+      <div class="dec"><b>Contrato versionado</b><p>El formato del evento tiene versión y es compatible hacia atrás. Cambiar el core no rompe el scoring.</p></div>
+      <div class="dec"><b>DLQ y reproceso acotado</b><p>Los eventos que fallan se aíslan y se reprocesan con límite, sin frenar el flujo principal.</p></div>
+      <div class="dec"><b>Observabilidad</b><p>Alarmas por antigüedad de la cola, errores del consumidor y mensajes en DLQ. Si el control se degrada, se sabe en minutos.</p></div>
+      <div class="dec"><b>Privacidad y costo</b><p>Piloto con datos sintéticos o seudonimizados (Ley 1581 de 2012). Datos con expiración y presupuesto acotado desde el día uno.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Hoja de ruta</span>
+      <h2>Cuatro fases, cada una con un entregable verificable</h2>
+      <p class="muted">Las fases van en orden: ninguna regla bloquea transacciones reales hasta que haya medido su efecto en modo sombra.</p>
+    </div>
+    <div class="phases">
+      <div class="phase now"><span class="k">Fase 0 · 4 semanas</span><h3>Piloto sintético</h3><ul><li>Generador de eventos Bre-B</li><li>Motor de reglas y monitor</li><li>Infraestructura con costo controlado</li></ul><p class="out">Entregable: esta demostración desplegada en la nube de Cotrafa.</p></div>
+      <div class="phase"><span class="k">Fase 1 · 6 semanas</span><h3>Modo sombra</h3><ul><li>Eventos reales seudonimizados</li><li>Score sin afectar la operación</li><li>Calibración con casos de fraude conocidos</li></ul><p class="out">Entregable: tasa de detección y falsos positivos medidos.</p></div>
+      <div class="phase"><span class="k">Fase 2 · 6 semanas</span><h3>Decisión en línea</h3><ul><li>Retener o escalar en crítico</li><li>Integración con el equipo de fraude</li><li>Gestión de casos y trazabilidad</li></ul><p class="out">Entregable: control activo con umbrales aprobados.</p></div>
+      <div class="phase"><span class="k">Fase 3 · continuo</span><h3>Modelo de anomalías</h3><ul><li>Perfil de comportamiento por asociado</li><li>Detección de redes de cuentas mula</li><li>Reentrenamiento y monitoreo de deriva</li></ul><p class="out">Entregable: score híbrido reglas + ML.</p></div>
+    </div>
+  </section>
+
+  <section class="ask">
+    <div>
+      <span class="eyebrow">Qué se solicita</span>
+      <h2 style="margin-top:10px">Aprobar la Fase 0</h2>
+      <p style="margin-top:12px;opacity:.8">Cuatro semanas, datos sintéticos y sin acceso a información de asociados. Al cierre se presenta el piloto funcionando y la decisión de pasar a modo sombra.</p>
+    </div>
+    <ul>
+      <li>Un responsable de negocio en Riesgo / SARLAFT para validar las reglas y umbrales.</li>
+      <li>Acceso a un entorno de nube de pruebas con presupuesto acotado.</li>
+      <li>Descripción del evento de transferencia Bre-B que emite el canal digital.</li>
+      <li>Catálogo de casos de fraude recientes (anonimizado) para calibrar la Fase 1.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>Bre-B Sentinel · propuesta de ciencia de datos para Cotrafa · inspirada en el proyecto abierto PIX Sentinel</span>
+    <span>Datos 100% sintéticos. El score es una simulación, no una decisión de fraude en producción.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const RULES=[
+    {id:"monto",nm:"Monto atípico",d:"Más de 5 veces el promedio histórico del asociado",w:30},
+    {id:"vel",nm:"Velocidad extrema",d:"6 o más transferencias en la última hora",w:25},
+    {id:"llave",nm:"Llave destino reciente",d:"Llave creada o modificada hace menos de 48 h",w:20},
+    {id:"disp",nm:"Dispositivo nuevo",d:"Primer uso del dispositivo o canal",w:15},
+    {id:"cuenta",nm:"Asociado o cuenta nueva",d:"Menos de 30 días de historial transaccional",w:10},
+    {id:"hora",nm:"Horario inusual",d:"Entre 00:00 y 05:00, hora de Colombia",w:10}
+  ];
+  const TOWNS=[["Medellín",34],["Bello",11],["Itagüí",9],["Envigado",8],["Rionegro",8],["Marinilla",6],["Apartadó",6],["Caucasia",5],["La Ceja",5],["Santa Fe de Ant.",4]];
+  const KEYS=["Celular","Documento","Correo","Alfanumérica","Comercio"];
+  const KEYW=[44,22,12,14,8];
+  let seed=2025, filter=null, data=[];
+
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  function pick(r,items,weights){const s=weights.reduce((a,b)=>a+b,0);let x=r()*s;for(let i=0;i<items.length;i++){x-=weights[i];if(x<0)return items[i]}return items[items.length-1]}
+  function gauss(r){return Math.sqrt(-2*Math.log(r()||1e-9))*Math.cos(2*Math.PI*r())}
+
+  function generate(s){
+    const r=rng(s), out=[], n=640;
+    const townNames=TOWNS.map(t=>t[0]), townW=TOWNS.map(t=>t[1]);
+    for(let i=0;i<n;i++){
+      const fraud=r()<0.045;
+      const base=Math.exp(11.4+0.9*gauss(r));            // mediana cercana a $90.000
+      const amount=Math.round((fraud?base*(3+r()*9):base)/100)*100;
+      let hour=Math.floor(fraud&&r()<0.45?r()*5:6+Math.abs(gauss(r))*5+r()*8)%24;
+      const f={
+        monto: fraud? r()<0.7 : r()<0.02,
+        vel:   fraud? r()<0.5 : r()<0.015,
+        llave: fraud? r()<0.65: r()<0.05,
+        disp:  fraud? r()<0.55: r()<0.06,
+        cuenta:fraud? r()<0.35: r()<0.05,
+        hora:  hour<5
+      };
+      if(f.monto && !fraud && amount<300000) f.monto=false;
+      let score=0; const sig=[];
+      RULES.forEach(rl=>{if(f[rl.id]){score+=rl.w;sig.push(rl.nm)}});
+      score=Math.min(100,score+Math.round(r()*4));
+      const town=pick(r,townNames,townW);
+      out.push({id:"BRB-"+(s%1000).toString().padStart(3,"0")+"-"+(10000+i),hour,min:Math.floor(r()*60),town,key:pick(r,KEYS,KEYW),amount,score,flags:f,sig});
+    }
+    return out;
+  }
+  const band=s=>s>=80?"critico":s>=60?"alto":s>=30?"medio":"bajo";
+  const bandLabel={critico:"Crítico",alto:"Alto",medio:"Medio",bajo:"Bajo"};
+  const bandVar={critico:"var(--crit)",alto:"var(--high)",medio:"var(--mid)",bajo:"var(--low)"};
+  const fmt=n=>n.toLocaleString("es-CO");
+  function money(n){if(n>=1e9)return "$"+(n/1e9).toLocaleString("es-CO",{maximumFractionDigits:2})+" mil M";if(n>=1e6)return "$"+(n/1e6).toLocaleString("es-CO",{maximumFractionDigits:1})+" M";return "$"+fmt(n)}
+  const $=id=>document.getElementById(id);
+
+  function render(){
+    const rows=filter?data.filter(d=>d.town===filter):data;
+    const alerts=rows.filter(d=>d.score>=60);
+    const signals=rows.reduce((a,d)=>a+d.sig.length,0);
+    $("kSignals").textContent=fmt(signals);
+    $("kTx").textContent=fmt(rows.length);
+    $("kVol").textContent=money(rows.reduce((a,d)=>a+d.amount,0));
+    $("kAlerts").textContent=fmt(alerts.length);
+    $("kAvg").textContent=rows.length?(rows.reduce((a,d)=>a+d.score,0)/rows.length).toFixed(1).replace(".",","):"–";
+    $("clear").hidden=!filter;
+    $("alertScope").textContent=filter?filter:"todas las regiones";
+    drawHist(rows); drawRegions(); drawRules(rows); drawTable(rows);
+  }
+
+  function drawHist(rows){
+    const bins=new Array(10).fill(0);
+    rows.forEach(d=>bins[Math.min(9,Math.floor(d.score/10))]++);
+    const W=480,H=220,L=40,R=10,T=12,B=30,pw=W-L-R,ph=H-T-B;
+    const max=Math.max(...bins,1), step=niceStep(max), top=Math.ceil(max/step)*step;
+    let s="";
+    for(let v=0;v<=top;v+=step){const y=T+ph-(v/top)*ph;s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y+4}" text-anchor="end">${v}</text>`}
+    const bw=pw/10;
+    bins.forEach((c,i)=>{const h=(c/top)*ph,x=L+i*bw+3,y=T+ph-h;const col=bandVar[band(i*10+5)];
+      s+=`<rect x="${x}" y="${y}" width="${bw-6}" height="${Math.max(h,c?1:0)}" rx="2" fill="${col}"><title>${i*10}–${i*10+9}: ${c} transacciones</title></rect>`;
+      if(c&&i>=3)s+=`<text x="${x+(bw-6)/2}" y="${y-4}" text-anchor="middle" style="fill:var(--fg)">${c}</text>`});
+    for(let i=0;i<=10;i+=2){s+=`<text x="${L+i*bw}" y="${H-10}" text-anchor="middle">${i*10}</text>`}
+    $("hist").innerHTML=s;
+  }
+  function niceStep(m){const raw=m/4,p=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/p;return (n<=1?1:n<=2?2:n<=5?5:10)*p}
+
+  function drawRegions(){
+    const by={};TOWNS.forEach(t=>by[t[0]]={n:0,a:0,c:0});
+    data.forEach(d=>{const b=by[d.town];b.n++;if(d.score>=80)b.c++;else if(d.score>=60)b.a++});
+    const max=Math.max(...Object.values(by).map(b=>b.a+b.c),1);
+    $("regions").innerHTML=TOWNS.map(([t])=>{const b=by[t];
+      return `<button type="button" class="reg${filter===t?" on":""}" data-t="${t}" aria-pressed="${filter===t}">
+        <span class="n">${t}</span>
+        <span class="b"><i style="width:${b.c/max*100}%;background:var(--crit)"></i><i style="width:${b.a/max*100}%;background:var(--high)"></i></span>
+        <span class="c">${b.a+b.c} / ${b.n}</span></button>`}).join("");
+    document.querySelectorAll(".reg").forEach(el=>el.onclick=()=>{filter=filter===el.dataset.t?null:el.dataset.t;render()});
+  }
+
+  function drawRules(rows){
+    const flagged=rows.filter(d=>d.score>=60);
+    $("rules").innerHTML=RULES.map(rl=>{const c=flagged.filter(d=>d.flags[rl.id]).length;const pct=flagged.length?c/flagged.length*100:0;
+      return `<div class="rule"><span class="nm">${rl.nm}</span><span class="w">+${rl.w} pts</span>
+        <span class="hb"><i style="width:${pct}%"></i></span>
+        <span class="d">${rl.d} · presente en ${Math.round(pct)}% de las alertas</span></div>`}).join("")
+      +`<p class="muted" style="font-size:.8rem">El score es la suma de pesos, con tope en 100. Los pesos son una propuesta inicial a calibrar con el equipo de Riesgo.</p>`;
+  }
+
+  function drawTable(rows){
+    const top=[...rows].sort((a,b)=>b.score-a.score||b.amount-a.amount).slice(0,10);
+    $("alerts").innerHTML=top.length?top.map(d=>{const b=band(d.score);
+      return `<tr><td class="num">${d.id}</td><td class="num">${String(d.hour).padStart(2,"0")}:${String(d.min).padStart(2,"0")}</td><td>${d.town}</td><td>${d.key}</td>
+      <td class="r num">${fmt(d.amount)}</td><td class="r num"><b>${d.score}</b></td><td><span class="sev ${b}">${bandLabel[b]}</span></td>
+      <td><span class="chips">${d.sig.map(s=>`<span class="chip">${s}</span>`).join("")||'<span class="muted">sin señales</span>'}</span></td></tr>`}).join("")
+      :`<tr><td colspan="8" class="muted">No hay transacciones para este filtro.</td></tr>`;
+  }
+
+  function load(s){seed=s;data=generate(s);$("seedLabel").textContent="semilla "+s;render()}
+  $("reseed").onclick=()=>{filter=null;load(1000+Math.floor(Math.random()*9000))};
+  $("clear").onclick=()=>{filter=null;render()};
+  load(2025);
+})();
+</script>
