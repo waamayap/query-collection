@@ -144,6 +144,32 @@ td.r{text-align:right}
 .ask h2{color:var(--bg)}
 .ask ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
 .ask .eyebrow{color:var(--bg);opacity:.7}
+/* ruta del dinero */
+.casebar{display:flex;gap:8px;flex-wrap:wrap}
+.casebar button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 12px;background:var(--surface)}
+.casebar button b{font:600 .82rem var(--mono)}
+.casebar button span{font-size:.76rem;color:var(--muted)}
+.casebar button[aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.rsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rsum div{background:var(--surface);padding:12px 16px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.rsum .l{font:500 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rsum .v{font:600 1.3rem var(--mono);font-variant-numeric:tabular-nums}
+.rsum .s{font-size:.78rem;color:var(--muted)}
+.rsum .v.out{color:var(--crit)} .rsum .v.in{color:var(--low)}
+.sankeywrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+#sankey{display:block}
+#sankey .colh{fill:var(--muted);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+#sankey .nid{fill:var(--fg);font:600 11px var(--mono)}
+#sankey .nsub{fill:var(--muted);font:10px var(--body)}
+#sankey .alert .nid,#sankey .alert .nsub{fill:#fff}
+#sankey path.lk{fill:none;stroke-linecap:round;opacity:.5;transition:opacity .15s}
+#sankey path.lk:hover{opacity:.95}
+.nodekey{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted)}
+.nodekey span{display:inline-flex;align-items:center;gap:6px}
+.nodekey i{width:14px;height:10px;border-radius:2px;display:inline-block;border:1.5px solid var(--line)}
+.why{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:560px){.rsum{grid-template-columns:minmax(0,1fr)}}
+
 footer{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
 
 @media (max-width:900px){
@@ -262,6 +288,39 @@ footer{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-s
           <tbody id="alerts"></tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <section id="ruta">
+    <div class="head">
+      <span class="eyebrow">Ruta del dinero</span>
+      <h2>De dónde viene, para dónde va y a dónde sigue</h2>
+      <p class="muted">El monitor califica cada transferencia. La ruta del dinero mira la red: toma una cuenta alertada, muestra de dónde le llegó el dinero y lo sigue salto por salto hasta que sale de Cotrafa o se queda en una cuenta donde todavía se puede congelar. Cotrafa solo ve una transferencia si una de las dos cuentas es suya; cuando el dinero llega a otra entidad, el rastro termina, salvo que vuelva.</p>
+    </div>
+
+    <div class="monitor">
+      <div class="casebar" role="tablist" id="casebar" aria-label="Casos detectados"></div>
+      <div class="rsum">
+        <div><span class="l">Entró a la cuenta alertada</span><span class="v num" id="rIn">–</span><span class="s" id="rInS"></span></div>
+        <div><span class="l">Salió de Cotrafa</span><span class="v num out" id="rOut">–</span><span class="s" id="rOutS"></span></div>
+        <div><span class="l">Sigue en cuentas de Cotrafa</span><span class="v num in" id="rStay">–</span><span class="s">se puede retener o congelar</span></div>
+      </div>
+      <div class="why" id="rWhy"></div>
+      <div class="sankeywrap"><svg id="sankey" role="img" aria-label="Diagrama de la ruta del dinero"></svg></div>
+      <div class="nodekey">
+        <span><i style="background:var(--crit);border-color:var(--crit)"></i>Cuenta alertada</span>
+        <span><i style="border-color:var(--high)"></i>Cuenta de Cotrafa con riesgo (se sigue)</span>
+        <span><i style="background:var(--sunk)"></i>Asociado sin riesgo (el rastreo se detiene)</span>
+        <span><i style="border-style:dashed;border-color:var(--muted)"></i>Otra entidad, todavía visible</span>
+        <span><i style="border-style:dashed;border-color:var(--crit)"></i>Sale de Cotrafa (fin del rastro)</span>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Paso</th><th>Fecha y hora</th><th>De</th><th>A</th><th class="r">Transferencia (COP)</th><th class="r">Dinero rastreado (COP)</th></tr></thead>
+          <tbody id="rTable"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.8rem">Casos generados por el notebook <a href="https://github.com/waamayap/query-collection/tree/main/bre-b" target="_blank" rel="noopener">RutaDineroBreB.ipynb</a> con datos sintéticos (semilla 2025, ventana de 48 horas). El dinero se asigna en orden de llegada: lo primero que entra a una cuenta es lo primero que sale.</p>
     </div>
   </section>
 
@@ -447,5 +506,111 @@ footer{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-s
   $("reseed").onclick=()=>{filter=null;load(1000+Math.floor(Math.random()*9000))};
   $("clear").onclick=()=>{filter=null;render()};
   load(2025);
+})();
+</script>
+
+<script type="application/json" id="rutaData">{"semilla":2025,"ventana_horas":48,"casos":[{"cuenta":"CTF-M07","score":90,"nivel":"crítico","titulo":"Cuenta puente + Ciclo","reglas":["Cuenta puente: entra y sale en menos de 1 hora","Ciclo: el dinero vuelve a la cuenta","Cuenta con menos de 60 días"],"resumen":{"entro":3200000.0,"salio_cotrafa":100000.0,"queda_en_cotrafa":3100000.0,"salio_por_entidad":{"Entidad C":100000.0}},"nodos":[{"id":"EXT-M17","entidad":"Entidad B","col":0,"score":null,"tipo":"externa"},{"id":"CTF-M06","entidad":"Cotrafa","col":1,"score":50,"tipo":"riesgo"},{"id":"CTF-M07","entidad":"Cotrafa","col":2,"score":90,"tipo":"alertada"},{"id":"EXT-M15","entidad":"Entidad C","col":3,"score":null,"tipo":"externa"}],"enlaces":[{"tx":"BRB-002754","de":"EXT-M17","a":"CTF-M06","salto":1,"fecha":"2026-11-05 10:00","monto_tx":3300000.0,"monto":3200000.0},{"tx":"BRB-002828","de":"CTF-M06","a":"CTF-M07","salto":2,"fecha":"2026-11-05 11:00","monto_tx":3200000.0,"monto":3200000.0},{"tx":"BRB-002881","de":"CTF-M07","a":"EXT-M15","salto":3,"fecha":"2026-11-05 11:40","monto_tx":3100000.0,"monto":3100000.0},{"tx":"BRB-003154","de":"EXT-M15","a":"CTF-M06","salto":4,"fecha":"2026-11-05 14:40","monto_tx":3000000.0,"monto":3000000.0}]},{"cuenta":"CTF-M04","score":85,"nivel":"crítico","titulo":"Cuenta puente + Uno a muchos","reglas":["Cuenta puente: entra y sale en menos de 1 hora","Uno a muchos: 8 o más destinos en 24 h","Cuenta con menos de 60 días"],"resumen":{"entro":9800000.0,"salio_cotrafa":4060000.0,"queda_en_cotrafa":5740000.0,"salio_por_entidad":{"Entidad A":1565600.0,"Entidad C":869800.0,"Entidad B":862000.0,"Entidad D":762600.0}},"nodos":[{"id":"EXT-M14","entidad":"Entidad A","col":0,"score":null,"tipo":"externa"},{"id":"CTF-M04","entidad":"Cotrafa","col":1,"score":85,"tipo":"alertada"},{"id":"EXT-0052","entidad":"Entidad A","col":2,"score":null,"tipo":"sale"},{"id":"CTF-0342","entidad":"Cotrafa","col":2,"score":0,"tipo":"cotrafa"},{"id":"CTF-0009","entidad":"Cotrafa","col":2,"score":0,"tipo":"cotrafa"},{"id":"EXT-0279","entidad":"Entidad A","col":2,"score":null,"tipo":"sale"},{"id":"EXT-0223","entidad":"Entidad C","col":2,"score":null,"tipo":"sale"},{"id":"CTF-M05","entidad":"Cotrafa","col":2,"score":60,"tipo":"riesgo"},{"id":"CTF-0064","entidad":"Cotrafa","col":2,"score":0,"tipo":"cotrafa"},{"id":"CTF-0014","entidad":"Cotrafa","col":2,"score":0,"tipo":"cotrafa"},{"id":"CTF-0199","entidad":"Cotrafa","col":2,"score":0,"tipo":"cotrafa"},{"id":"CTF-0052","entidad":"Cotrafa","col":2,"score":0,"tipo":"cotrafa"},{"id":"EXT-0122","entidad":"Entidad B","col":2,"score":null,"tipo":"sale"},{"id":"EXT-M16","entidad":"Entidad D","col":3,"score":null,"tipo":"sale"}],"enlaces":[{"tx":"BRB-001381","de":"EXT-M14","a":"CTF-M04","salto":1,"fecha":"2026-11-03 15:00","monto_tx":9800000.0,"monto":9800000.0},{"tx":"BRB-001394","de":"CTF-M04","a":"EXT-0052","salto":2,"fecha":"2026-11-03 15:07","monto_tx":779000.0,"monto":779000.0},{"tx":"BRB-001402","de":"CTF-M04","a":"CTF-0342","salto":2,"fecha":"2026-11-03 15:10","monto_tx":736200.0,"monto":736200.0},{"tx":"BRB-001406","de":"CTF-M04","a":"CTF-0009","salto":2,"fecha":"2026-11-03 15:12","monto_tx":754900.0,"monto":754900.0},{"tx":"BRB-001407","de":"CTF-M04","a":"EXT-0279","salto":2,"fecha":"2026-11-03 15:14","monto_tx":786600.0,"monto":786600.0},{"tx":"BRB-001413","de":"CTF-M04","a":"EXT-0223","salto":2,"fecha":"2026-11-03 15:22","monto_tx":869800.0,"monto":869800.0},{"tx":"BRB-001417","de":"CTF-M04","a":"CTF-M05","salto":2,"fecha":"2026-11-03 15:23","monto_tx":794400.0,"monto":794400.0},{"tx":"BRB-001429","de":"CTF-M04","a":"CTF-0064","salto":2,"fecha":"2026-11-03 15:35","monto_tx":945700.0,"monto":945700.0},{"tx":"BRB-001434","de":"CTF-M04","a":"CTF-0014","salto":2,"fecha":"2026-11-03 15:38","monto_tx":863600.0,"monto":863600.0},{"tx":"BRB-001448","de":"CTF-M04","a":"CTF-0199","salto":2,"fecha":"2026-11-03 15:44","monto_tx":905500.0,"monto":905500.0},{"tx":"BRB-001459","de":"CTF-M04","a":"CTF-0052","salto":2,"fecha":"2026-11-03 15:53","monto_tx":861300.0,"monto":861300.0},{"tx":"BRB-001494","de":"CTF-M04","a":"EXT-0122","salto":2,"fecha":"2026-11-03 16:20","monto_tx":862000.0,"monto":862000.0},{"tx":"BRB-001452","de":"CTF-M05","a":"EXT-M16","salto":3,"fecha":"2026-11-03 15:46","monto_tx":762600.0,"monto":762600.0}]},{"cuenta":"CTF-M01","score":60,"nivel":"alto","titulo":"Cuenta puente","reglas":["Cuenta puente: entra y sale en menos de 1 hora","Cuenta con menos de 60 días"],"resumen":{"entro":16520000.0,"salio_cotrafa":15198200.0,"queda_en_cotrafa":1321800.0,"salio_por_entidad":{"Entidad B":9416300.0,"Entidad C":5781900.0}},"nodos":[{"id":"CTF-0368","entidad":"Cotrafa","col":0,"score":0,"tipo":"cotrafa"},{"id":"CTF-M01","entidad":"Cotrafa","col":1,"score":60,"tipo":"alertada"},{"id":"CTF-0260","entidad":"Cotrafa","col":0,"score":0,"tipo":"cotrafa"},{"id":"CTF-0398","entidad":"Cotrafa","col":0,"score":0,"tipo":"cotrafa"},{"id":"CTF-0224","entidad":"Cotrafa","col":0,"score":0,"tipo":"cotrafa"},{"id":"CTF-0039","entidad":"Cotrafa","col":0,"score":0,"tipo":"cotrafa"},{"id":"CTF-M02","entidad":"Cotrafa","col":2,"score":60,"tipo":"riesgo"},{"id":"EXT-M10","entidad":"Entidad C","col":2,"score":null,"tipo":"sale"},{"id":"EXT-M11","entidad":"Entidad B","col":3,"score":null,"tipo":"sale"}],"enlaces":[{"tx":"BRB-001882","de":"CTF-0368","a":"CTF-M01","salto":1,"fecha":"2026-11-04 10:06","monto_tx":3327600.0,"monto":3327600.0},{"tx":"BRB-001886","de":"CTF-0260","a":"CTF-M01","salto":1,"fecha":"2026-11-04 10:13","monto_tx":3218100.0,"monto":3218100.0},{"tx":"BRB-001888","de":"CTF-0398","a":"CTF-M01","salto":1,"fecha":"2026-11-04 10:14","monto_tx":1930500.0,"monto":1930500.0},{"tx":"BRB-001925","de":"CTF-0224","a":"CTF-M01","salto":1,"fecha":"2026-11-04 10:43","monto_tx":2811800.0,"monto":2811800.0},{"tx":"BRB-001972","de":"CTF-0039","a":"CTF-M01","salto":1,"fecha":"2026-11-04 11:29","monto_tx":5232000.0,"monto":5232000.0},{"tx":"BRB-001897","de":"CTF-M01","a":"CTF-M02","salto":2,"fecha":"2026-11-04 10:20","monto_tx":1158300.0,"monto":1158300.0},{"tx":"BRB-001898","de":"CTF-M01","a":"EXT-M10","salto":2,"fecha":"2026-11-04 10:22","monto_tx":675700.0,"monto":675700.0},{"tx":"BRB-001903","de":"CTF-M01","a":"CTF-M02","salto":2,"fecha":"2026-11-04 10:26","monto_tx":1996500.0,"monto":1996500.0},{"tx":"BRB-001906","de":"CTF-M01","a":"EXT-M10","salto":2,"fecha":"2026-11-04 10:28","monto_tx":1164600.0,"monto":1164600.0},{"tx":"BRB-001909","de":"CTF-M01","a":"CTF-M02","salto":2,"fecha":"2026-11-04 10:30","monto_tx":1930800.0,"monto":1930800.0},{"tx":"BRB-001911","de":"CTF-M01","a":"EXT-M10","salto":2,"fecha":"2026-11-04 10:32","monto_tx":1126300.0,"monto":1126300.0},{"tx":"BRB-001948","de":"CTF-M01","a":"CTF-M02","salto":2,"fecha":"2026-11-04 11:03","monto_tx":1687100.0,"monto":1687100.0},{"tx":"BRB-001950","de":"CTF-M01","a":"EXT-M10","salto":2,"fecha":"2026-11-04 11:05","monto_tx":984100.0,"monto":984100.0},{"tx":"BRB-001983","de":"CTF-M01","a":"CTF-M02","salto":2,"fecha":"2026-11-04 11:42","monto_tx":3139200.0,"monto":3139200.0},{"tx":"BRB-001984","de":"CTF-M01","a":"EXT-M10","salto":2,"fecha":"2026-11-04 11:44","monto_tx":1831200.0,"monto":1831200.0},{"tx":"BRB-001923","de":"CTF-M02","a":"EXT-M11","salto":3,"fecha":"2026-11-04 10:42","monto_tx":1100400.0,"monto":1100400.0},{"tx":"BRB-001933","de":"CTF-M02","a":"EXT-M11","salto":3,"fecha":"2026-11-04 10:48","monto_tx":1834300.0,"monto":1834300.0},{"tx":"BRB-001941","de":"CTF-M02","a":"EXT-M11","salto":3,"fecha":"2026-11-04 10:55","monto_tx":1896700.0,"monto":1896700.0},{"tx":"BRB-001961","de":"CTF-M02","a":"EXT-M11","salto":3,"fecha":"2026-11-04 11:19","monto_tx":1602700.0,"monto":1602700.0},{"tx":"BRB-002006","de":"CTF-M02","a":"EXT-M11","salto":3,"fecha":"2026-11-04 11:58","monto_tx":2982200.0,"monto":2982200.0}]},{"cuenta":"CTF-M03","score":60,"nivel":"alto","titulo":"Muchos a uno + Salida de madrugada","reglas":["Muchos a uno: 8 o más orígenes en 24 h","Cuenta con menos de 60 días","Salida de $1 millón o más entre 00:00 y 05:00"],"resumen":{"entro":4181800.0,"salio_cotrafa":4056300.0,"queda_en_cotrafa":125500.0,"salio_por_entidad":{"Entidad E":4056300.0}},"nodos":[{"id":"EXT-0163","entidad":"Entidad D","col":0,"score":null,"tipo":"externa"},{"id":"CTF-M03","entidad":"Cotrafa","col":1,"score":60,"tipo":"alertada"},{"id":"EXT-0125","entidad":"Entidad C","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0022","entidad":"Entidad B","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0080","entidad":"Entidad B","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0018","entidad":"Entidad B","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0031","entidad":"Entidad C","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0128","entidad":"Entidad C","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0100","entidad":"Entidad E","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0282","entidad":"Entidad A","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0250","entidad":"Entidad A","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0079","entidad":"Entidad E","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0262","entidad":"Entidad D","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0139","entidad":"Entidad A","col":0,"score":null,"tipo":"externa"},{"id":"EXT-0066","entidad":"Entidad A","col":0,"score":null,"tipo":"externa"},{"id":"EXT-M13","entidad":"Entidad E","col":2,"score":null,"tipo":"sale"}],"enlaces":[{"tx":"BRB-004240","de":"EXT-0163","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:01","monto_tx":393600.0,"monto":393600.0},{"tx":"BRB-004251","de":"EXT-0125","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:22","monto_tx":444600.0,"monto":444600.0},{"tx":"BRB-004265","de":"EXT-0022","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:31","monto_tx":300900.0,"monto":300900.0},{"tx":"BRB-004274","de":"EXT-0080","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:42","monto_tx":229100.0,"monto":229100.0},{"tx":"BRB-004275","de":"EXT-0018","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:42","monto_tx":291200.0,"monto":291200.0},{"tx":"BRB-004280","de":"EXT-0031","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:49","monto_tx":352000.0,"monto":352000.0},{"tx":"BRB-004284","de":"EXT-0128","a":"CTF-M03","salto":1,"fecha":"2026-11-06 19:51","monto_tx":252300.0,"monto":252300.0},{"tx":"BRB-004288","de":"EXT-0100","a":"CTF-M03","salto":1,"fecha":"2026-11-06 20:03","monto_tx":281300.0,"monto":281300.0},{"tx":"BRB-004308","de":"EXT-0282","a":"CTF-M03","salto":1,"fecha":"2026-11-06 20:41","monto_tx":304700.0,"monto":304700.0},{"tx":"BRB-004312","de":"EXT-0250","a":"CTF-M03","salto":1,"fecha":"2026-11-06 20:54","monto_tx":431400.0,"monto":431400.0},{"tx":"BRB-004313","de":"EXT-0079","a":"CTF-M03","salto":1,"fecha":"2026-11-06 20:57","monto_tx":237900.0,"monto":237900.0},{"tx":"BRB-004318","de":"EXT-0262","a":"CTF-M03","salto":1,"fecha":"2026-11-06 21:12","monto_tx":179600.0,"monto":179600.0},{"tx":"BRB-004333","de":"EXT-0139","a":"CTF-M03","salto":1,"fecha":"2026-11-06 21:51","monto_tx":202500.0,"monto":202500.0},{"tx":"BRB-004335","de":"EXT-0066","a":"CTF-M03","salto":1,"fecha":"2026-11-06 21:59","monto_tx":280700.0,"monto":280700.0},{"tx":"BRB-004361","de":"CTF-M03","a":"EXT-M13","salto":2,"fecha":"2026-11-07 01:30","monto_tx":4056300.0,"monto":4056300.0}]}]}</script>
+<script>
+(function(){
+  let data;
+  try{data=JSON.parse(document.getElementById("rutaData").textContent)}catch(e){return}
+  const casos=data.casos||[]; if(!casos.length)return;
+  const $=id=>document.getElementById(id);
+  const fmt=n=>Math.round(n).toLocaleString("es-CO");
+  const money=n=>"$"+fmt(n);
+  const sevClass={"crítico":"critico","alto":"alto","medio":"medio","bajo":"bajo"};
+  const NS="http://www.w3.org/2000/svg";
+  let actual=0;
+
+  $("casebar").innerHTML=casos.map((c,i)=>`<button type="button" role="tab" id="caso${i}" aria-selected="${i===actual}">
+    <b>${c.cuenta} <span class="sev ${sevClass[c.nivel]||""}">${c.score}</span></b><span>${c.titulo}</span></button>`).join("");
+  casos.forEach((c,i)=>$("caso"+i).onclick=()=>{actual=i;render()});
+
+  function etiquetaCol(col,colAlerta){
+    if(col===colAlerta)return "Cuenta alertada";
+    return col<colAlerta?(colAlerta-col===1?"De dónde viene":"Origen −"+(colAlerta-col)):(col-colAlerta===1?"Para dónde va":"Sigue · salto "+(col-colAlerta));
+  }
+
+  function render(){
+    const c=casos[actual];
+    document.querySelectorAll("#casebar button").forEach((b,i)=>b.setAttribute("aria-selected",i===actual));
+    const r=c.resumen;
+    $("rIn").textContent=money(r.entro);
+    const origenes=new Set(c.enlaces.filter(e=>e.a===c.cuenta).map(e=>e.de));
+    $("rInS").textContent=`desde ${origenes.size} cuenta${origenes.size===1?"":"s"}`;
+    $("rOut").textContent=money(r.salio_cotrafa);
+    const ents=Object.entries(r.salio_por_entidad);
+    $("rOutS").textContent=ents.length?ents.map(([k,v])=>`${k} ${money(v)}`).join(" · "):"no salió";
+    $("rStay").textContent=money(r.queda_en_cotrafa);
+    $("rWhy").innerHTML=c.reglas.map(t=>`<span class="chip">${t}</span>`).join("");
+    drawSankey(c); drawTable(c);
+  }
+
+  function drawSankey(c){
+    const svg=$("sankey"); svg.innerHTML="";
+    const nodos=c.nodos, porCol={};
+    nodos.forEach(n=>(porCol[n.col]=porCol[n.col]||[]).push(n));
+    const ncols=Math.max(...nodos.map(n=>n.col))+1;
+    const maxEnCol=Math.max(...Object.values(porCol).map(a=>a.length));
+    const nodeW=136,nodeH=maxEnCol>8?30:40,gap=maxEnCol>8?8:14,colW=Math.max(190,nodeW+70);
+    const top=34, alto=maxEnCol*(nodeH+gap)-gap;
+    const hayVuelta=c.enlaces.some(e=>{const a=nodos.find(n=>n.id===e.de),b=nodos.find(n=>n.id===e.a);return b.col<=a.col});
+    const W=24*2+(ncols-1)*colW+nodeW, H=top+alto+(hayVuelta?70:16);
+    svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+    svg.setAttribute("width",W); svg.style.width="100%"; svg.style.minWidth=Math.min(W,760)+"px"; svg.style.height="auto";
+    const pos={};
+    const colAlerta=nodos.find(n=>n.id===c.cuenta).col;
+    Object.entries(porCol).forEach(([col,arr])=>{
+      const off=(alto-(arr.length*(nodeH+gap)-gap))/2;
+      arr.forEach((n,i)=>pos[n.id]={x:24+col*colW,y:top+off+i*(nodeH+gap)});
+      const t=document.createElementNS(NS,"text");
+      t.setAttribute("x",24+col*colW); t.setAttribute("y",16); t.setAttribute("class","colh");
+      t.textContent=etiquetaCol(+col,colAlerta); svg.appendChild(t);
+    });
+    const maxM=Math.max(...c.enlaces.map(e=>e.monto));
+    const tipo=Object.fromEntries(nodos.map(n=>[n.id,n.tipo]));
+    [...c.enlaces].sort((a,b)=>b.monto-a.monto).forEach(e=>{
+      const a=pos[e.de],b=pos[e.a]; if(!a||!b)return;
+      const p=document.createElementNS(NS,"path");
+      let d;
+      if(b.x<=a.x){const yb=top+alto+50;d=`M${a.x+nodeW/2},${a.y+nodeH} C${a.x+nodeW/2},${yb} ${b.x+nodeW/2},${yb} ${b.x+nodeW/2},${b.y+nodeH}`}
+      else{const x1=a.x+nodeW,x2=b.x,y1=a.y+nodeH/2,y2=b.y+nodeH/2,mx=(x1+x2)/2;d=`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
+      p.setAttribute("d",d); p.setAttribute("class","lk");
+      p.setAttribute("stroke",tipo[e.a]==="sale"?"var(--crit)":e.a===c.cuenta?"var(--high)":"var(--accent)");
+      p.setAttribute("stroke-width",(2+14*Math.sqrt(e.monto/maxM)).toFixed(1));
+      const tt=document.createElementNS(NS,"title");
+      tt.textContent=`${e.tx} · ${e.fecha}\n${e.de} → ${e.a}\nRastreado ${money(e.monto)} de ${money(e.monto_tx)}`;
+      p.appendChild(tt); svg.appendChild(p);
+    });
+    nodos.forEach(n=>{
+      const {x,y}=pos[n.id];
+      const g=document.createElementNS(NS,"g"); if(n.tipo==="alertada")g.setAttribute("class","alert");
+      const rc=document.createElementNS(NS,"rect");
+      rc.setAttribute("x",x);rc.setAttribute("y",y);rc.setAttribute("width",nodeW);rc.setAttribute("height",nodeH);rc.setAttribute("rx",6);
+      const st={alertada:["var(--crit)","var(--crit)",""],riesgo:["var(--surface)","var(--high)",""],cotrafa:["var(--sunk)","var(--line)",""],
+                externa:["var(--surface)","var(--muted)","4 3"],sale:["var(--surface)","var(--crit)","4 3"]}[n.tipo];
+      rc.setAttribute("fill",st[0]);rc.setAttribute("stroke",st[1]);rc.setAttribute("stroke-width",1.5);if(st[2])rc.setAttribute("stroke-dasharray",st[2]);
+      g.appendChild(rc);
+      const t1=document.createElementNS(NS,"text");t1.setAttribute("x",x+10);t1.setAttribute("y",y+(nodeH>34?17:13));t1.setAttribute("class","nid");t1.textContent=n.id;g.appendChild(t1);
+      const t2=document.createElementNS(NS,"text");t2.setAttribute("x",x+10);t2.setAttribute("y",y+(nodeH>34?31:24));t2.setAttribute("class","nsub");
+      t2.textContent=n.entidad==="Cotrafa"?`Cotrafa · score ${n.score}`:(n.tipo==="sale"?`${n.entidad} · sale`:n.entidad);
+      g.appendChild(t2);
+      const tt=document.createElementNS(NS,"title");tt.textContent=n.id+" · "+n.entidad;g.appendChild(tt);
+      svg.appendChild(g);
+    });
+  }
+
+  function drawTable(c){
+    const colDe=Object.fromEntries(c.nodos.map(n=>[n.id,n.col]));
+    const colAlerta=colDe[c.cuenta];
+    const filas=[...c.enlaces].sort((a,b)=>a.salto-b.salto||a.fecha.localeCompare(b.fecha));
+    $("rTable").innerHTML=filas.map(e=>{
+      const rel=e.salto-colAlerta;
+      const paso=rel<0?"Origen "+rel:rel===0?"Entrada":"Salto +"+rel;
+      const parcial=e.monto<e.monto_tx-1;
+      return `<tr><td class="num">${paso}</td><td class="num">${e.fecha}</td><td class="num">${e.de}</td><td class="num">${e.a}</td>
+        <td class="r num">${fmt(e.monto_tx)}</td><td class="r num"><b>${fmt(e.monto)}</b>${parcial?' <span class="muted">parcial</span>':""}</td></tr>`}).join("");
+  }
+  render();
 })();
 </script>
