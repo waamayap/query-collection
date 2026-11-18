@@ -1,5 +1,7 @@
-# Datos reales: no subir
-*.xlsx
+# Datos reales y resultados: no subir
 *.xls
-movimientos_breb*
-cuentas_breb*
+*.xlsx
+*.csv
+salidas/
+# Excepción: archivo de ejemplo sintético
+!ejemplo_movimientos_breb.xls
